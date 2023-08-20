@@ -5,6 +5,7 @@ export interface Schema {
   targetAttributeForScope(identifier: string): string
   outletAttributeForScope(identifier: string, outlet: string): string
   keyMappings: { [key: string]: string }
+  getModKey(): string
 }
 
 export const defaultSchema: Schema = {
@@ -31,6 +32,10 @@ export const defaultSchema: Schema = {
     // [0-9]
     ...objectFromEntries("0123456789".split("").map((n) => [n, n])),
   },
+  getModKey: ((_: { key?: string }) => () => {
+    if (!_.key) _.key = /Mac|iPod|iPhone|iPad/.test(window?.navigator?.platform || "") ? "Meta" : "Control"
+    return _.key // memoize the modifier key on first call to avoid platform sniffing on every call
+  })({ key: "" }),
 }
 
 function objectFromEntries(array: [string, any][]): object {
